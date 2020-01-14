@@ -1,0 +1,25 @@
+<html>
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Compose Message</title>
+</head>
+
+<body>
+
+<p>Enter your message for the doctor in the box below:</p>
+
+<div class="form-group">
+<form action="/send" method="post">
+  <div>
+  	<textarea name="message" class="form control" style="min-width: 100%; min-height: 50%"></textarea>
+  </div>
+  <input type="submit" value="Send" >
+  <input type="hidden" name="token" value="{{ token }}">
+</form>
+</div>
+
+</body>
+
+</html>
