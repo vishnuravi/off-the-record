@@ -1,22 +1,19 @@
 from flask import Flask, request, redirect, render_template
 from pymongo import MongoClient
 from twilio.twiml.messaging_response import Body, Message, Redirect, MessagingResponse
-import os, time, json
+import uuid, time, json
 
-server_url = "http://apps.vishnu.io:5000"
-
-class CustomFlask(Flask):
-    jinja_options = Flask.jinja_options.copy()
-    jinja_options.update(dict(variable_start_string='%%', variable_end_string='%%'))
+server_url = "https://offtherecord.vishnu.io"
 
 client = MongoClient()
-db = client.nyphack
+db = client.offtherecord
 
-app = CustomFlask(__name__)
+app = Flask(__name__)
 
+#homepage
 @app.route("/")
 def index_page():
-    return "Hello"
+    return render_template('home.html')
  
 #recieves sms from Twilio and sends back link to compose message
 @app.route("/process_sms", methods=['GET', 'POST'])
@@ -27,11 +24,11 @@ def process_sms():
     message = Message()
     
     #check if sender's phone number is registered
-    valid_number = db.users.find_one({"phone_number" : phone_number})
-    if valid_number is not None:
-        token = os.urandom(8).encode('hex')
+    valid_user = db.users.find_one({"phone_number" : phone_number})
+    if valid_user is not None:
+        token = str(uuid.uuid1())
         db.tokens.insert_one({"token": token, "phone_number": phone_number, "time": int(time.time())})
-        message.body("Hi! Tap the following link to send a secure message to your doctor. " + server_url + "/c/" + token)
+        message.body("Hey " + valid_user['first_name'] +"! Tap this link to send a secure message to your doctor. " + server_url + "/c/" + token)
     else:
         message.body("Your number was not recognized as belonging to a current patient. Register at the following link: " + server_url + "/register/" + phone_number)
     
@@ -44,19 +41,25 @@ def compose(token):
     valid_token = db.tokens.find_one({"token": token})
     if valid_token is not None:
         phone_number = valid_token['phone_number']
-        db.tokens.remove({"token": token})
-        return render_template('compose.html', phone_number=phone_number)
+        user = db.users.find_one({"phone_number" : phone_number})
+        return render_template('compose.html', phone_number=phone_number, first_name=user['first_name'], last_name=user['last_name'],token=token)
     else:
-        return "<h1>This link has been used already or expired. Please try again.</h1>"
+        return render_template('expired.html')
 	
 
 #saves message to database
 @app.route("/send", methods=['GET', 'POST'])
 def save():
-    message = request.values.get('message', None)
-    phone_number = request.values.get('phone_number', None)
-    db.messages.insert_one({"phone_number": phone_number, "message": message, "time": int(time.time())})
-    return "ok"
+    token = request.values.get('token', None)
+    valid_token = db.tokens.find_one({"token": token})
+    if valid_token is not None:
+        message = request.values.get('message', None)
+        phone_number = request.values.get('phone_number', None)
+        db.messages.insert_one({"phone_number": phone_number, "message": message, "time": int(time.time())})
+        db.tokens.remove({"token": token})
+    else:
+        return render_template('expired.html')
+    return render_template('sent.html')
     
 #register a new phone number
 @app.route("/register/<phone_number>")
@@ -70,7 +73,7 @@ def process_registration():
     last_name = request.values.get('last_name', None)
     phone_number = request.values.get('phone_number', None)
     db.users.insert_one({"first_name": first_name, "last_name": last_name, "phone_number": phone_number})
-    return "ok"
+    return render_template('registered.html')
     
 #retrieve all messages
 @app.route("/messages")
@@ -78,7 +81,7 @@ def retrieve_messages():
     cursor = db.messages.find()
     response = []
     for doc in cursor:
-        response.append({'phone_number' : doc['phone_number'], 'message' : doc['message']})
+        response.append({'phone_number' : doc['phone_number'], 'message' : doc['message'], 'time': doc['time']})
     return json.dumps(response)
 
 #doctor dashboard

@@ -1,0 +1,29 @@
+
+{% extends "base.html" %}
+
+{% block title %}Compose Message{% endblock %}
+
+{% block content %}
+  <section class="section">
+    <img src="/static/images/logo.png" width="150" />
+    <hr />
+    <h2 class="subtitle">Hi {{ first_name }} {{ last_name }} <a href="/register">(not you?)</a> </h2>
+    <h2 class="subtitle">Whatever you say here will be sent to your doctor securely.</h2>
+    <div class="form-group">
+      <form action="/send" method="post">
+        <div class="field">
+          <div class="control">
+            <textarea class="textarea" placeholder="Enter your message for your doctor here" name="message"></textarea>
+          </div>
+        </div>
+        <div class="field is-grouped">
+          <div class="control">
+            <button class="button is-link">Send</button>
+          </div>
+        </div>
+        <input type="hidden" name="token" value="{{ token }}" />
+        <input type="hidden" name="phone_number" value="{{ phone_number }}" />
+      </form>
+    </div>
+  </section>
+  {% endblock %}
