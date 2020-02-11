@@ -3,17 +3,20 @@ from pymongo import MongoClient
 from twilio.twiml.messaging_response import Body, Message, Redirect, MessagingResponse
 import uuid, time, json
 
-server_url = "https://offtherecord.vishnu.io"
+app = Flask(__name__)
+
+app.config.from_object("config.DevelopmentConfig")
+
+server_url = app.config["SERVER_URL"]
+sms_number = app.config["SMS_NUMBER"]
 
 client = MongoClient()
 db = client.offtherecord
 
-app = Flask(__name__)
-
 #homepage
 @app.route("/")
 def index_page():
-    return render_template('home.html')
+    return render_template('home.html', sms_number=sms_number)
  
 #recieves sms from Twilio and sends back link to compose message
 @app.route("/process_sms", methods=['GET', 'POST'])
@@ -74,21 +77,7 @@ def process_registration():
     phone_number = request.values.get('phone_number', None)
     db.users.insert_one({"first_name": first_name, "last_name": last_name, "phone_number": phone_number})
     return render_template('registered.html')
-    
-#retrieve all messages
-@app.route("/messages")
-def retrieve_messages():
-    cursor = db.messages.find()
-    response = []
-    for doc in cursor:
-        response.append({'phone_number' : doc['phone_number'], 'message' : doc['message'], 'time': doc['time']})
-    return json.dumps(response)
 
-#doctor dashboard
-@app.route("/dashboard")
-def dashboard():
-    return "Dashboard goes here"
- 
 if __name__ == "__main__":
     app.debug = True
     app.run(host='0.0.0.0')
