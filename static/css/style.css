@@ -1,3 +1,87 @@
 body {
-    font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Muli', sans-serif;
+}
+
+.logo-box {
+  padding-bottom: 10px;
+}
+
+.logo-left {
+  background-color: #E8E8E8; color: #A8A8A8
+}
+
+.logo-right {
+  color:#005C97
+}
+
+.gradient-box {
+  background-color:#224870;
+  border: 10px solid;
+  border-image-source: linear-gradient(to right, #833ab4, #4BC0C8);
+  border-image-slice: 1;
+  box-shadow: 0px 3px 15px rgba(0,0,0,0.2);
+  padding: 1em;
+}
+
+.title, .subtitle {
+  color: #FFF;
+}
+
+#messageArea {
+  background-color: #E8E8E8;
+}
+
+#messageAreaOverlay {
+  display: none;
+  text-align: center;
+  font-size: 90;
+}
+
+#app-overlay {
+  display: none;
+  text-align: center;
+  font-size: 200;
+}
+
+#countdown {
+  position: relative;
+  margin: auto;
+  margin-top: 100px;
+  height: 40px;
+  width: 40px;
+  text-align: center;
+}
+
+#countdown-number {
+  color: white;
+  display: inline-block;
+  line-height: 40px;
+}
+
+svg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  transform: rotateY(-180deg) rotateZ(-90deg);
+}
+
+svg circle {
+  stroke-dasharray: 113px;
+  stroke-dashoffset: 0px;
+  stroke-linecap: round;
+  stroke-width: 2px;
+  stroke: white;
+  fill: none;
+  animation: countdown 10s linear infinite forwards;
+}
+
+@keyframes countdown {
+  from {
+    stroke-dashoffset: 0px;
+  }
+  to {
+    stroke-dashoffset: 113px;
+  }
 }

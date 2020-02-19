@@ -2,14 +2,25 @@
 
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Stylesheets -->
   <link rel="stylesheet" href="/static/css/bulma.min.css">
   <link rel="stylesheet" href="/static/css/style.css">
-  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Muli&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
   <title>Off the Record - {% block title %}{% endblock %}</title>
 </head>
 
 <body>
+  <div id="app-container">
     {% block content %}{% endblock %}
+    {% include 'footer.html' %}
+  </div>
+  <div id="app-overlay">
+    👋
+  </div>
+    <!-- Scripts -->
+    <script src="/static/js/blinkingCursor.js"></script>
 </body>
 
 </html>
