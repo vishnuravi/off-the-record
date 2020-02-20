@@ -1,29 +1,51 @@
-
 {% extends "base.html" %}
 
 {% block title %}Compose Message{% endblock %}
 
 {% block content %}
-  <section class="section">
-    <img src="/static/images/logo.png" width="150" />
-    <hr />
-    <h2 class="subtitle">Hi {{ first_name }} {{ last_name }} <a href="/register">(not you?)</a> </h2>
-    <h2 class="subtitle">Whatever you type here will be sent to your doctor securely.</h2>
+<section class="section">
+  <div class="app-frame">
+    <h2 class="subtitle">Hi {{ first_name }} {{ last_name }} <a href="/register/{{ phone_number }}">(not you?)</a> </h2>
+    <h2 class="subtitle">Whatever you write here will be sent to {{ doctor_name }} securely.</h2>
     <div class="form-group">
-      <form action="/send" method="post">
+      <form id="message" action="/send" method="POST">
         <div class="field">
           <div class="control">
-            <textarea class="textarea" placeholder="Enter your message for your doctor here" name="message"></textarea>
+            <textarea id="messageArea" class="textarea is-info"
+              name="message"></textarea>
+              <div id="messageAreaOverlay" class="animated">🤫</div>
           </div>
         </div>
         <div class="field is-grouped">
           <div class="control">
-            <button class="button is-link">Send</button>
+            <button id="sendButton" class="button is-success">
+              <span class="icon is-small">
+                <i class="material-icons">done</i>
+              </span>
+              <span>Send</span>
+            </button>
+            <button id="clearButton" class="button is-danger" onclick="clearMessageArea(); return false;">
+              <span class="icon is-small">
+                <i class="material-icons">delete</i>
+              </span>
+              <span>Clear</span>
+            </button>
+            <button id="hideButton" class="button is-warning" onclick="toggleMessageArea(); return false;">
+              <span class="icon is-small">
+                <i class="material-icons">remove_red_eye</i>
+              </span>
+              <span id="hideButtonText">Hide</span>
+            </button>
           </div>
         </div>
         <input type="hidden" name="token" value="{{ token }}" />
         <input type="hidden" name="phone_number" value="{{ phone_number }}" />
       </form>
     </div>
-  </section>
-  {% endblock %}
+  </div>
+</section>
+{% block javascript %}
+<script src="/static/js/compose.js"></script>
+{% endblock %}
+
+{% endblock %}

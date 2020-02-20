@@ -1,25 +1,34 @@
 from flask import Flask, request, redirect, render_template
 from pymongo import MongoClient
 from twilio.twiml.messaging_response import Body, Message, Redirect, MessagingResponse
-import uuid, time, json
+import time
+import json
+import secrets
 
 app = Flask(__name__)
 
+#load settings from config file
 app.config.from_object("config.DevelopmentConfig")
-
-server_url = app.config["SERVER_URL"]
+base_url = app.config["SERVER_URL"]
 sms_number = app.config["SMS_NUMBER"]
+doctor_name = app.config["DOCTOR_NAME"]
 
+#connect to database
 client = MongoClient()
 db = client.offtherecord
 
-#homepage
+#make constants available globally to templates
+@app.context_processor
+def inject_constants():
+    return dict(base_url=base_url, sms_number=sms_number, doctor_name=doctor_name)
+
+#renders home page
 @app.route("/")
 def index_page():
-    return render_template('home.html', sms_number=sms_number)
+    return render_template('home.html')
  
 #recieves sms from Twilio and sends back link to compose message
-@app.route("/process_sms", methods=['GET', 'POST'])
+@app.route("/process_sms", methods=['POST'])
 def process_sms():
     phone_number = request.values.get('From', None)
     message = request.values.get('Body', None)
@@ -29,18 +38,21 @@ def process_sms():
     #check if sender's phone number is registered
     valid_user = db.users.find_one({"phone_number" : phone_number})
     if valid_user is not None:
-        token = str(uuid.uuid1())
+        #if registered, create new token and send compose message link
+        token = secrets.token_urlsafe(8)
         db.tokens.insert_one({"token": token, "phone_number": phone_number, "time": int(time.time())})
-        message.body("Hey " + valid_user['first_name'] +"! Tap this link to send a secure message to your doctor. " + server_url + "/c/" + token)
+        link = base_url + "/c/" + token
+        message.body("Hey {}! Tap this link to send a secure message to {}. {}".format(valid_user['first_name'], doctor_name, link))
     else:
-        message.body("Your number was not recognized as belonging to a current patient. Register at the following link: " + server_url + "/register/" + phone_number)
-    
+        #if not registered, send registration link
+        message.body("Hi! Your number wasn't recognized as belonging to a current patient. Please register at this link: {}/register/{}".format(base_url, phone_number))
     resp.append(message)
     return str(resp)
 
 #renders form to compose message
-@app.route("/c/<token>", methods=['GET', 'POST'])
+@app.route("/c/<token>", methods=['GET'])
 def compose(token):
+    #check if token is valid and render compose message page
     valid_token = db.tokens.find_one({"token": token})
     if valid_token is not None:
         phone_number = valid_token['phone_number']
@@ -51,7 +63,7 @@ def compose(token):
 	
 
 #saves message to database
-@app.route("/send", methods=['GET', 'POST'])
+@app.route("/send", methods=['POST'])
 def save():
     token = request.values.get('token', None)
     valid_token = db.tokens.find_one({"token": token})
@@ -65,12 +77,13 @@ def save():
     return render_template('sent.html')
     
 #register a new phone number
-@app.route("/register/<phone_number>")
-def register(phone_number):
+@app.route("/register", methods=['GET'])
+@app.route("/register/<phone_number>", methods=['GET'])
+def register(phone_number=''):
     return render_template('register.html', phone_number=phone_number)
 	
 #process new registration
-@app.route("/process_registration", methods=['GET', 'POST'])
+@app.route("/create_user", methods=['POST'])
 def process_registration():
     first_name = request.values.get('first_name', None)
     last_name = request.values.get('last_name', None)
@@ -79,5 +92,4 @@ def process_registration():
     return render_template('registered.html')
 
 if __name__ == "__main__":
-    app.debug = True
     app.run(host='0.0.0.0')
