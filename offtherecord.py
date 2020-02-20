@@ -1,7 +1,9 @@
 from flask import Flask, request, redirect, render_template
 from pymongo import MongoClient
 from twilio.twiml.messaging_response import Body, Message, Redirect, MessagingResponse
-import uuid, time, json
+import time
+import json
+import secrets
 
 app = Flask(__name__)
 
@@ -37,12 +39,13 @@ def process_sms():
     valid_user = db.users.find_one({"phone_number" : phone_number})
     if valid_user is not None:
         #if registered, create new token and send compose message link
-        token = str(uuid.uuid1())
+        token = secrets.token_urlsafe(8)
         db.tokens.insert_one({"token": token, "phone_number": phone_number, "time": int(time.time())})
-        message.body("Hey " + valid_user['first_name'] +"! Tap this link to send a secure message to your doctor. " + base_url + "/c/" + token)
+        link = base_url + "/c/" + token
+        message.body("Hey {}! Tap this link to send a secure message to {}. {}".format(valid_user['first_name'], doctor_name, link))
     else:
         #if not registered, send registration link
-        message.body("Your number was not recognized as belonging to a current patient. Register at the following link: " + base_url + "/register/" + phone_number)
+        message.body("Hi! Your number wasn't recognized as belonging to a current patient. Please register at this link: {}/register/{}".format(base_url, phone_number))
     resp.append(message)
     return str(resp)
 
