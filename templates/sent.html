@@ -3,30 +3,6 @@
 {% block title %}Message Sent{% endblock %}
 
 {% block response %}
-<h2 class="subtitle">Your message has been sent to Dr. Ravi!</h2>
-<h2 class="subtitle">This app will self-destruct in 10 seconds.</h2>
-<div id="countdown">
-      <div id="countdown-number"></div>
-      <svg>
-            <circle r="18" cx="20" cy="20"></circle>
-      </svg>
-</div>
-
-<script>
-      var countdownNumberEl = document.getElementById('countdown-number');
-      var appContainer = document.getElementById('app-container');
-      var appOverlay = document.getElementById('app-overlay');
-      var countdown = 10;
-      countdownNumberEl.textContent = countdown;
-      
-      setInterval(function () {
-            countdown = --countdown <= 0 ? 10 : countdown;
-            countdownNumberEl.textContent = countdown;
-            if (countdown <= 1){
-                  appContainer.style.display = "none";
-                  appOverlay.style.display = "block";
-            }
-      }, 1000);
-
-</script>
+<h2 class="subtitle">Your message has been sent to {{ doctor_name }}!</h2>
+<h2 class="subtitle">Please close your browser tab to protect your privacy.</h2>
 {% endblock %}

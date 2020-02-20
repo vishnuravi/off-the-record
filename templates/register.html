@@ -5,8 +5,7 @@
 {% block content %}
 <section class="section">
   <div class="container">
-    {% include 'logo.html' %}
-    <div class="gradient-box">
+    <div class="app-frame has-text-white">
       <p>We weren't able to find your phone number associated with a patient in our system. Please enter in your
         information below to set up an account.</p>
         <br />
@@ -14,29 +13,25 @@
         <form action="/create_user" method="post">
           <div class="field">
             <div class="control">
-              <label class="label">First Name</label>
-              <input class="input is-info" type="text" name="first_name" />
+              <input class="input is-info" type="text" name="first_name" placeholder="First Name" />
             </div>
           </div>
 
           <div class="field">
             <div class="control">
-              <label class="label">Last Name</label>
-              <input class="input is-info" type="text" name="last_name" />
+              <input class="input is-info" type="text" name="last_name" placeholder="Last Name" />
             </div>
           </div>
 
           <div class="field">
             <div class="control">
-              <label class="label">Date of Birth</label>
-              <input class="input is-info" type="text" name="date_of_birth" placeholder="mm/dd/yyyy" />
+              <input class="input is-info" type="text" name="date_of_birth" placeholder="Date of Birth (mm/dd/yyyy)" />
             </div>
           </div>
 
           <div class="field">
             <div class="control">
-              <label class="label">Phone Number</label>
-              <input class="input is-info" type="text" name="phone_number" value="{{ phone_number }}" />
+              <input class="input is-info" type="text" name="phone_number" placeholder="Mobile Number" value="{{ phone_number }}" />
             </div>
           </div>
 

@@ -4,6 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Stylesheets -->
   <link rel="stylesheet" href="/static/css/bulma.min.css">
+  <link rel="stylesheet" href="/static/css/animate.min.css">
   <link rel="stylesheet" href="/static/css/style.css">
   <link href="https://fonts.googleapis.com/css?family=Muli&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -13,14 +14,10 @@
 
 <body>
   <div id="app-container">
+    {% include 'header.html' %}
     {% block content %}{% endblock %}
     {% include 'footer.html' %}
   </div>
-  <div id="app-overlay">
-    👋
-  </div>
-    <!-- Scripts -->
-    <script src="/static/js/blinkingCursor.js"></script>
 </body>
 
 </html>

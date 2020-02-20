@@ -1,3 +1,5 @@
+// blinking cursor animation for logo
+
 var cursor = true;
 var speed = 600;
 

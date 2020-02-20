@@ -5,20 +5,22 @@ import uuid, time, json
 
 app = Flask(__name__)
 
+#load settings from config file
 app.config.from_object("config.DevelopmentConfig")
-
 base_url = app.config["SERVER_URL"]
 sms_number = app.config["SMS_NUMBER"]
+doctor_name = app.config["DOCTOR_NAME"]
 
+#connect to database
 client = MongoClient()
 db = client.offtherecord
 
-#make base url and sms number available globally to templates
+#make constants available globally to templates
 @app.context_processor
-def inject_url_and_number():
-    return dict(base_url=base_url, sms_number=sms_number)
+def inject_constants():
+    return dict(base_url=base_url, sms_number=sms_number, doctor_name=doctor_name)
 
-#homepage
+#renders home page
 @app.route("/")
 def index_page():
     return render_template('home.html')
@@ -34,12 +36,12 @@ def process_sms():
     #check if sender's phone number is registered
     valid_user = db.users.find_one({"phone_number" : phone_number})
     if valid_user is not None:
-        #create new token and send compose message link
+        #if registered, create new token and send compose message link
         token = str(uuid.uuid1())
         db.tokens.insert_one({"token": token, "phone_number": phone_number, "time": int(time.time())})
         message.body("Hey " + valid_user['first_name'] +"! Tap this link to send a secure message to your doctor. " + base_url + "/c/" + token)
     else:
-        #send user registration link
+        #if not registered, send registration link
         message.body("Your number was not recognized as belonging to a current patient. Register at the following link: " + base_url + "/register/" + phone_number)
     resp.append(message)
     return str(resp)
@@ -72,8 +74,9 @@ def save():
     return render_template('sent.html')
     
 #register a new phone number
+@app.route("/register", methods=['GET'])
 @app.route("/register/<phone_number>", methods=['GET'])
-def register(phone_number):
+def register(phone_number=''):
     return render_template('register.html', phone_number=phone_number)
 	
 #process new registration
@@ -82,7 +85,7 @@ def process_registration():
     first_name = request.values.get('first_name', None)
     last_name = request.values.get('last_name', None)
     phone_number = request.values.get('phone_number', None)
-    db.users.insert_one({"first_name": first_name, "last_name": last_name, "phone_number": phone_number, "verified": "false"})
+    db.users.insert_one({"first_name": first_name, "last_name": last_name, "phone_number": phone_number})
     return render_template('registered.html')
 
 if __name__ == "__main__":

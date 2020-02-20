@@ -4,17 +4,16 @@
 
 {% block content %}
 <section class="section">
-  {% include 'logo.html' %}
-  <div class="gradient-box">
+  <div class="app-frame">
     <h2 class="subtitle">Hi {{ first_name }} {{ last_name }} <a href="/register/{{ phone_number }}">(not you?)</a> </h2>
-    <h2 class="subtitle">Whatever you write here will be sent to Dr. Ravi securely.</h2>
+    <h2 class="subtitle">Whatever you write here will be sent to {{ doctor_name }} securely.</h2>
     <div class="form-group">
-      <form action="/send" method="POST">
+      <form id="message" action="/send" method="POST">
         <div class="field">
           <div class="control">
             <textarea id="messageArea" class="textarea is-info"
               name="message"></textarea>
-              <div id="messageAreaOverlay">🤫</div>
+              <div id="messageAreaOverlay" class="animated">🤫</div>
           </div>
         </div>
         <div class="field is-grouped">
@@ -25,17 +24,17 @@
               </span>
               <span>Send</span>
             </button>
-            <button class="button is-warning" onclick="toggleHide(); return false;">
+            <button id="clearButton" class="button is-danger" onclick="clearMessageArea(); return false;">
+              <span class="icon is-small">
+                <i class="material-icons">delete</i>
+              </span>
+              <span>Clear</span>
+            </button>
+            <button id="hideButton" class="button is-warning" onclick="toggleMessageArea(); return false;">
               <span class="icon is-small">
                 <i class="material-icons">remove_red_eye</i>
               </span>
               <span id="hideButtonText">Hide</span>
-            </button>
-            <button id="clearButton" class="button is-danger" onclick="clear(); return false;">
-              <span class="icon is-small">
-                <i class="material-icons">delete</i>
-              </span>
-              <span id="hideButtonText">Clear</span>
             </button>
           </div>
         </div>
@@ -45,37 +44,8 @@
     </div>
   </div>
 </section>
+{% block javascript %}
+<script src="/static/js/compose.js"></script>
+{% endblock %}
 
-<script>
-  function toggleHide() {
-    var messageArea = document.getElementById("messageArea");
-    var messageAreaOverlay = document.getElementById("messageAreaOverlay");
-    var hideButton = document.getElementById("hideButtonText");
-    var sendButton = document.getElementById("sendButton");
-    var clearButton = document.getElementById("clearButton");
-
-    if (messageArea.style.display === "none") {
-      messageArea.style.display = "block";
-      messageAreaOverlay.style.display = "none";
-      sendButton.disabled = false;
-      clearButton.disabled = false;
-    } else {
-      messageArea.style.display = "none";
-      messageAreaOverlay.style.display = "block";
-      sendButton.disabled = true;
-      clearButton.disabled = true;
-    }
-
-    if (hideButton.innerHTML == "Hide") {
-      hideButton.innerHTML = "Show";
-    } else {
-      hideButton.innerHTML = "Hide";
-    }
-  }
-
-  function clear() {
-    document.getElementById("messageBox").value = ' ';
-    console.log("cleared");
-  }
-</script>
 {% endblock %}
