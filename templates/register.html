@@ -3,40 +3,85 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
+<script>
+  window.onload = function () {
+    var phone_number = document.getElementById("phone_number").value;
+    const app = new Vue({
+      el: '#app',
+      data: {
+        first_name: '',
+        last_name: '',
+        date_of_birth: '',
+        phone_number: phone_number,
+        registered: false
+      },
+      methods: {
+        registerUser: function (e) {
+          var self = this;
+          axios.post('/create_user', {
+            first_name: self.first_name,
+            last_name: self.last_name,
+            date_of_birth: self.date_of_birth,
+            phone_number: self.phone_number
+          })
+            .then(function (response) {
+              self.registered = true;
+              console.log(response);
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+        }
+      }
+    })
+  }
+</script>
+
 <section class="section">
   <div class="container">
-    <div class="app-frame has-text-white">
-      <p>We weren't able to find your phone number associated with a patient in our system. Please enter in your
-        information below to set up an account.</p>
+    <div id="app" class="app-frame">
+      <div id="registration-success" class="has-text-white" v-show="registered" key="1" v-cloak>
+        <h2 class="subtitle">You're registered, awesome!</h2>
+        <h2 class="subtitle">Please text <a href="sms:[[ sms_number ]]&body=hi">[[ sms_number ]]</a> to send a message
+          to your doctor.</h2>
+      </div>
+      <div id="registration-form" class="has-text-white" v-show="!registered" key="2">
+        <p>Please enter in your information below to set up an account.</p>
         <br />
-      <div class="form-group">
-        <form action="/create_user" method="post">
-          <div class="field">
-            <div class="control">
-              <input class="input is-info" type="text" name="first_name" placeholder="First Name" />
+        <div class="form-group">
+          <form id="register" @submit.prevent="registerUser">
+            <div class="field">
+              <div class="control">
+                <input class="input is-info" type="text" name="first_name" placeholder="First Name"
+                  v-model="first_name" />
+              </div>
             </div>
-          </div>
 
-          <div class="field">
-            <div class="control">
-              <input class="input is-info" type="text" name="last_name" placeholder="Last Name" />
+            <div class="field">
+              <div class="control">
+                <input class="input is-info" type="text" name="last_name" placeholder="Last Name" v-model="last_name" />
+              </div>
             </div>
-          </div>
 
-          <div class="field">
-            <div class="control">
-              <input class="input is-info" type="text" name="date_of_birth" placeholder="Date of Birth (mm/dd/yyyy)" />
+            <div class="field">
+              <div class="control">
+                <input class="input is-info" type="text" name="date_of_birth" placeholder="Date of Birth (mm/dd/yyyy)"
+                  v-model="date_of_birth" />
+              </div>
             </div>
-          </div>
 
-          <div class="field">
-            <div class="control">
-              <input class="input is-info" type="text" name="phone_number" placeholder="Mobile Number" value="{{ phone_number }}" />
+            <div class="field">
+              <div class="control">
+                <input class="input is-info" type="text" name="phone_number" placeholder="Mobile Number"
+                  v-model="phone_number" />
+              </div>
             </div>
-          </div>
 
-          <input class="button is-info" type="submit" value="Sign Up">
-        </form>
+            <input class="button is-info" type="submit" value="Sign Up" />
+
+            <input type="hidden" value="[[ phone_number ]]" id="phone_number" />
+          </form>
+        </div>
       </div>
     </div>
   </div>

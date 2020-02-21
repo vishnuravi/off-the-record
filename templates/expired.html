@@ -4,5 +4,5 @@
 
 {% block response %}
       <h2 class="subtitle">Sorry, the link you used is invalid or expired.</h2> 
-      <h2 class="subtitle">Please text <a href="sms:{{ sms_number }}&body=hi">{{ sms_number }}</a> again to get a new link.</h2>
+      <h2 class="subtitle">Please text <a href="sms:[[ sms_number ]]&body=hi">[[ sms_number ]]</a> again to get a new link.</h2>
 {% endblock %}
