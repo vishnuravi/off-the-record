@@ -1,11 +1,16 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, jsonify
 from pymongo import MongoClient
 from twilio.twiml.messaging_response import Body, Message, Redirect, MessagingResponse
 import time
 import json
 import secrets
 
-app = Flask(__name__)
+#define custom delimiters for Jinja to avoid conflict with Vue.js
+class CustomFlask(Flask):
+    jinja_options = Flask.jinja_options.copy()
+    jinja_options.update(dict(variable_start_string='[[', variable_end_string=']]'))
+
+app = CustomFlask(__name__)
 
 #load settings from config file
 app.config.from_object("config.DevelopmentConfig")
@@ -65,16 +70,17 @@ def compose(token):
 #saves message to database
 @app.route("/send", methods=['POST'])
 def save():
-    token = request.values.get('token', None)
+    data = request.get_json()
+    token = data['token']
     valid_token = db.tokens.find_one({"token": token})
     if valid_token is not None:
-        message = request.values.get('message', None)
-        phone_number = request.values.get('phone_number', None)
+        message = data['message']
+        phone_number = data['phone_number']
         db.messages.insert_one({"phone_number": phone_number, "message": message, "time": int(time.time())})
         db.tokens.remove({"token": token})
+        return jsonify(success=True)
     else:
-        return render_template('expired.html')
-    return render_template('sent.html')
+        return jsonify(success=False)
     
 #register a new phone number
 @app.route("/register", methods=['GET'])
@@ -85,11 +91,12 @@ def register(phone_number=''):
 #process new registration
 @app.route("/create_user", methods=['POST'])
 def process_registration():
-    first_name = request.values.get('first_name', None)
-    last_name = request.values.get('last_name', None)
-    phone_number = request.values.get('phone_number', None)
+    data = request.get_json()
+    first_name = data['first_name']
+    last_name = data['last_name']
+    phone_number = data['phone_number']
     db.users.insert_one({"first_name": first_name, "last_name": last_name, "phone_number": phone_number})
-    return render_template('registered.html')
+    return jsonify(success=True)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')

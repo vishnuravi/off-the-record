@@ -3,49 +3,117 @@
 {% block title %}Compose Message{% endblock %}
 
 {% block content %}
+<script>
+  window.onload = function () {
+    var token = document.getElementById("token").value;
+    var phone_number = document.getElementById("phone_number").value;
+    const app = new Vue({
+      el: '#app',
+      data: {
+        message: '',
+        token: token,
+        phone_number: phone_number,
+        errors: [],
+        messageAreaVisible: true,
+        sent: false
+      },
+      methods: {
+        toggleMessageArea: function (e) {
+          this.messageAreaVisible = !this.messageAreaVisible;
+          e.preventDefault();
+        },
+        clearMessage: function (e) {
+          this.message = '',
+            e.preventDefault();
+        },
+        sendMessage: function (e) {
+          this.errors = [];
+
+          if (this.message !== '') {
+            var self = this;
+            axios.post('/send', {
+              message: self.message,
+              token: self.token,
+              phone_number: self.phone_number
+            })
+              .then(function (response) {
+                self.sent = true;
+                console.log(response);
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+
+          } else {
+            this.errors.push("Please type a message.")
+          }
+        }
+      }
+    })
+  }
+</script>
+
 <section class="section">
-  <div class="app-frame">
-    <h2 class="subtitle">Hi {{ first_name }} {{ last_name }} <a href="/register/{{ phone_number }}">(not you?)</a> </h2>
-    <h2 class="subtitle">Whatever you write here will be sent to {{ doctor_name }} securely.</h2>
-    <div class="form-group">
-      <form id="message" action="/send" method="POST">
-        <div class="field">
-          <div class="control">
-            <textarea id="messageArea" class="textarea is-info"
-              name="message"></textarea>
-              <div id="messageAreaOverlay" class="animated">🤫</div>
+  <div id="app" class="app-frame">
+    <div id="success" v-if="sent">
+      <h2 class="subtitle">Your message has been sent to [[ doctor_name ]]!</h2>
+      <h2 class="subtitle">Please close your browser tab to protect your privacy.</h2>
+    </div>
+    <div id="compose" v-if="!sent">
+      <h2 class="subtitle">Hi [[ first_name ]] [[ last_name ]] <a href="/register/[[ phone_number ]]">(not you?)</a>
+      </h2>
+      <h2 class="subtitle">Whatever you write here will be sent to [[ doctor_name ]] securely.</h2>
+      <div class="form-group">
+        <form id="message" @submit.prevent="sendMessage">
+          <div class="field">
+            <div class="control has-text-white">
+              <p v-if="errors.length">
+                <ul v-cloak>
+                  <li v-for="error in errors">{{ error }}</li>
+                </ul>
+              </p>
+              <transition name="slide-fade">
+                <textarea id="messageArea" class="textarea is-info is-radiusless" name="message" v-model="message"
+                  v-if="messageAreaVisible"></textarea>
+              </transition>
+            </div>
           </div>
-        </div>
-        <div class="field is-grouped">
-          <div class="control">
-            <button id="sendButton" class="button is-success">
-              <span class="icon is-small">
-                <i class="material-icons">done</i>
-              </span>
-              <span>Send</span>
-            </button>
-            <button id="clearButton" class="button is-danger" onclick="clearMessageArea(); return false;">
-              <span class="icon is-small">
-                <i class="material-icons">delete</i>
-              </span>
-              <span>Clear</span>
-            </button>
-            <button id="hideButton" class="button is-warning" onclick="toggleMessageArea(); return false;">
-              <span class="icon is-small">
-                <i class="material-icons">remove_red_eye</i>
-              </span>
-              <span id="hideButtonText">Hide</span>
-            </button>
+          <div class="field is-grouped">
+            <div class="control">
+              <transition name="slide-fade">
+                <div id="buttons">
+                  <button id="hideButton" class="button is-warning is-radiusless" v-on:click="toggleMessageArea">
+                    <span class="icon is-small">
+                      <i class="material-icons" v-if="messageAreaVisible">visibility</i>
+                      <i class="material-icons" v-else>visibility_off</i>
+                    </span>
+                    <span v-if="messageAreaVisible">Hide</span>
+                    <span v-else>Show</span>
+                  </button>
+                  <button id="clearButton" class="button is-danger is-radiusless" v-if="messageAreaVisible" v-on:click="clearMessage"
+                    :disabled="!messageAreaVisible || (this.message === '')">
+                    <span class="icon is-small">
+                      <i class="material-icons">clear</i>
+                    </span>
+                    <span>Clear</span>
+                  </button>
+                  <button id="sendButton" class="button is-success is-radiusless" v-if="messageAreaVisible"
+                    :disabled="!messageAreaVisible || (this.message === '')">
+                    <span class="icon is-small">
+                      <i class="material-icons">done</i>
+                    </span>
+                    <span>Send</span>
+                  </button>
+                </div>
+              </transition>
+            </div>
           </div>
-        </div>
-        <input type="hidden" name="token" value="{{ token }}" />
-        <input type="hidden" name="phone_number" value="{{ phone_number }}" />
-      </form>
+          <input type="hidden" name="token" value="[[ token ]]" id="token" />
+          <input type="hidden" name="phone_number" value="[[ phone_number ]]" id="phone_number" />
+        </form>
+      </div>
     </div>
   </div>
 </section>
-{% block javascript %}
-<script src="/static/js/compose.js"></script>
-{% endblock %}
 
 {% endblock %}

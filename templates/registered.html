@@ -1,8 +1,0 @@
-{% extends "response.html" %}
-
-{% block title %}Registration Successful{% endblock %}
-
-{% block response %}
-      <h2 class="subtitle">You're registered, awesome!</h2> 
-      <h2 class="subtitle">Please text <a href="sms:{{ sms_number }}&body=hi">{{ sms_number }}</a> to send a message to your doctor.</h2>
-{% endblock %}
