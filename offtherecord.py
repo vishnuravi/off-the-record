@@ -95,7 +95,7 @@ def save_message():
         return jsonify(error="Invalid token"), 401
 
 
-@app.route("/register", methods=['GET'])
+@app.route("/register/", methods=['GET'])
 @app.route("/register/<phone_number>", methods=['GET'])
 def register(phone_number=''):
     """Renders form to register a new user"""

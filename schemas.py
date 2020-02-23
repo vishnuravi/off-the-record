@@ -9,7 +9,8 @@ class UserSchema(Schema):
         min=1, error="Last name can't be empty."))
     phone_number = fields.Str(required=True, validate=[validate.Length(min=1, error="Phone number can't be empty."), validate.Regexp(
         '^\+(?:[0-9]){6,14}[0-9]$', error="Must be a valid phone number with country code.")])
-    date_of_birth = fields.DateTime(required=True)
+    date_of_birth = fields.Str(required=True, validate=validate.Regexp(
+        '([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))', error="Invalid date format"))
 
 
 class MessageSchema(Schema):
