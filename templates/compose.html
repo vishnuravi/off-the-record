@@ -3,77 +3,16 @@
 {% block title %}Compose Message{% endblock %}
 
 {% block content %}
-<script>
-  window.onload = function () {
-    var token = document.getElementById("token").value;
-    var phone_number = document.getElementById("phone_number").value;
-    const app = new Vue({
-      el: '#app',
-      data: {
-        message: '',
-        token: token,
-        phone_number: phone_number,
-        errors: [],
-        messageAreaVisible: true,
-        sent: false,
-        countdown: 5
-      },
-      methods: {
-        toggleMessageArea: function (e) {
-          this.messageAreaVisible = !this.messageAreaVisible;
-          e.preventDefault();
-        },
-        clearMessage: function (e) {
-          this.message = '',
-            e.preventDefault();
-        },
-        sendMessage: function (e) {
-          this.errors = [];
-
-          if (this.message !== '') {
-            var self = this;
-            axios.post('/send', {
-              message: self.message,
-              token: self.token,
-              phone_number: self.phone_number
-            })
-              .then(function (response) {
-                // display the success message
-                self.sent = true;
-
-                // start the countdown
-                var countdownTimer = setInterval(function () {
-                  self.countdown--;
-                  // when countdown ends, delete the app container from the DOM
-                  if (self.countdown <= 0) {
-                    var appContainer = document.getElementById('app-container');
-                    appContainer.style.visibility = "hidden";
-                    clearInterval(countdownTimer);
-                  }
-                }, 1000)
-                console.log(response);
-              })
-              .catch(function (error) {
-                console.log(error);
-              });
-
-          } else {
-            this.errors.push("Please type a message.")
-          }
-        }
-      }
-    })
-  }
-</script>
+<script src="/static/js/compose.js"></script>
 
 <section class="section">
   <div id="app" class="app-frame">
-    <div id="success" class="has-text-centered" v-if="sent">
+    <div id="success" class="has-text-centered" v-if="processed">
       <h2 class="subtitle">Your message has been sent to [[ doctor_name ]]!</h2>
       <h2 class="subtitle">This app will disappear in {{ countdown }} seconds.</h2>
       <h2 class="subtitle">Please close your browser tab for your privacy.</h2>
     </div>
-    <div id="compose" v-if="!sent">
+    <div id="compose" v-if="!processed">
       <h2 class="subtitle">Hi [[ first_name ]] [[ last_name ]] <a href="/register/[[ phone_number ]]">(not you?)</a>
       </h2>
       <h2 class="subtitle">Whatever you write here will be sent to [[ doctor_name ]] securely.</h2>
@@ -81,14 +20,10 @@
         <form id="message" @submit.prevent="sendMessage">
           <div class="field">
             <div class="control has-text-white">
-              <p v-if="errors.length">
-                <ul v-cloak>
-                  <li v-for="error in errors">{{ error }}</li>
-                </ul>
-              </p>
               <transition name="slide-fade">
                 <textarea id="messageArea" class="textarea is-info is-radiusless" name="message" v-model="message"
-                  v-if="messageAreaVisible"></textarea>
+                  v-if="messageAreaVisible" :class="{ 'is-danger': submitted && $v.message.$error }"></textarea>
+                <p v-if="submitted && !$v.message.required" class="help is-danger">Message can't be empty.</p>
               </transition>
             </div>
           </div>

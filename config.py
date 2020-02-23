@@ -2,6 +2,7 @@ class Config(object):
     DEBUG = False
     TESTING = False
 
+
 class DevelopmentConfig(Config):
     DEBUG = True
     SMS_NUMBER = '(415) 223-5601'
