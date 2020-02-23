@@ -8,7 +8,7 @@ body {
 
 /* Logo styles */
 .logo {
-  text-align: center;
+  padding-top: 1em;
 }
 
 .logo-left {
@@ -27,6 +27,8 @@ body {
   border-image-slice: 1;
   box-shadow: 0px 3px 15px rgba(0,0,0,0.2);
   padding: 1em;
+  max-width: 50em;
+  margin: auto;
 }
 
 /** Text area on compose message screen **/

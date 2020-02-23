@@ -15,7 +15,8 @@
         phone_number: phone_number,
         errors: [],
         messageAreaVisible: true,
-        sent: false
+        sent: false,
+        countdown: 5
       },
       methods: {
         toggleMessageArea: function (e) {
@@ -37,7 +38,19 @@
               phone_number: self.phone_number
             })
               .then(function (response) {
+                // display the success message
                 self.sent = true;
+
+                // start the countdown
+                var countdownTimer = setInterval(function () {
+                  self.countdown--;
+                  // when countdown ends, delete the app container from the DOM
+                  if (self.countdown <= 0) {
+                    var appContainer = document.getElementById('app-container');
+                    appContainer.style.visibility = "hidden";
+                    clearInterval(countdownTimer);
+                  }
+                }, 1000)
                 console.log(response);
               })
               .catch(function (error) {
@@ -55,9 +68,10 @@
 
 <section class="section">
   <div id="app" class="app-frame">
-    <div id="success" v-if="sent">
+    <div id="success" class="has-text-centered" v-if="sent">
       <h2 class="subtitle">Your message has been sent to [[ doctor_name ]]!</h2>
-      <h2 class="subtitle">Please close your browser tab to protect your privacy.</h2>
+      <h2 class="subtitle">This app will disappear in {{ countdown }} seconds.</h2>
+      <h2 class="subtitle">Please close your browser tab for your privacy.</h2>
     </div>
     <div id="compose" v-if="!sent">
       <h2 class="subtitle">Hi [[ first_name ]] [[ last_name ]] <a href="/register/[[ phone_number ]]">(not you?)</a>
@@ -90,8 +104,8 @@
                     <span v-if="messageAreaVisible">Hide</span>
                     <span v-else>Show</span>
                   </button>
-                  <button id="clearButton" class="button is-danger is-radiusless" v-if="messageAreaVisible" v-on:click="clearMessage"
-                    :disabled="!messageAreaVisible || (this.message === '')">
+                  <button id="clearButton" class="button is-danger is-radiusless" v-if="messageAreaVisible"
+                    v-on:click="clearMessage" :disabled="!messageAreaVisible || (this.message === '')">
                     <span class="icon is-small">
                       <i class="material-icons">clear</i>
                     </span>
