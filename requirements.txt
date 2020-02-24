@@ -27,7 +27,7 @@ pymongo==3.10.1
 pyparsing==2.4.6
 pytest==5.3.5
 pytz==2019.3
-requests==2.22.0
+requests==2.23.0
 six==1.14.0
 twilio==6.35.5
 typed-ast==1.4.1
