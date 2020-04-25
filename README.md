@@ -1,4 +1,4 @@
-# Off the Record
+<img src="https://user-images.githubusercontent.com/1212163/80267440-e8e3f700-866e-11ea-9040-ce88a0998c9c.png" />
 
 As a teen, it’s embarrassing and awkward to openly ask your doctor questions about things like drugs, alcohol, sex, etc. when your parents are in the room. These conversations reveal risk factors that lead to accidents and suicide, the two biggest killers in the adolescent population.
 
