@@ -6,6 +6,7 @@ from schemas import UserSchema, MessageSchema
 import time
 import json
 import secrets
+import os
 
 
 class CustomFlask(Flask):
@@ -18,13 +19,17 @@ class CustomFlask(Flask):
 app = CustomFlask(__name__)
 
 # Load settings from config file
-app.config.from_object("config.DevelopmentConfig")
+if os.environ['FLASK_ENV'] == 'production':
+    app.config.from_object("config.ProductionConfig")
+else:
+    app.config.from_object("config.DevelopmentConfig")
+
 base_url = app.config["SERVER_URL"]
 sms_number = app.config["SMS_NUMBER"]
 doctor_name = app.config["DOCTOR_NAME"]
 
 # Connect to database
-client = MongoClient()
+client = MongoClient(host=app.config['MONGODB_HOST'])
 db = client.offtherecord
 
 
