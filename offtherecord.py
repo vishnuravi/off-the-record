@@ -29,8 +29,9 @@ sms_number = app.config["SMS_NUMBER"]
 doctor_name = app.config["DOCTOR_NAME"]
 
 # Connect to database
-client = MongoClient(host=app.config['MONGODB_HOST'])
+client = MongoClient(host=app.config['MONGO_URI'])
 db = client.offtherecord
+
 
 
 @app.context_processor

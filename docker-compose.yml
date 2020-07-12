@@ -1,0 +1,19 @@
+version: "3"
+services:
+    offtherecord_app:
+        container_name: offtherecord_app
+        build: .
+        command: python offtherecord.py
+        ports:
+            - "5000:5000"
+        volumes:
+            - .:/off-the-record
+        links:
+            - mongo
+        environment:
+            - FLASK_ENV=production
+    mongo:
+        container_name: mongo
+        image: mongo
+        ports:
+            - "27017:27017"
