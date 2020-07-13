@@ -1,10 +1,9 @@
-from flask import Flask, request, redirect, render_template, jsonify
+from flask import Flask, request, render_template, jsonify
 from pymongo import MongoClient
-from twilio.twiml.messaging_response import Body, Message, Redirect, MessagingResponse
+from twilio.twiml.messaging_response import Message, MessagingResponse
 from marshmallow import ValidationError
 from schemas import UserSchema, MessageSchema
 import time
-import json
 import secrets
 import os
 
@@ -31,7 +30,6 @@ doctor_name = app.config["DOCTOR_NAME"]
 # Connect to database
 client = MongoClient(host=app.config['MONGO_URI'])
 db = client.offtherecord
-
 
 
 @app.context_processor
@@ -86,7 +84,7 @@ def save_message():
     data = request.get_json()
 
     try:
-        result = MessageSchema().load(data)
+        MessageSchema().load(data)
     except ValidationError as err:
         return err.messages, 400
 
@@ -114,7 +112,7 @@ def create_user():
     data = request.get_json()
 
     try:
-        result = UserSchema().load(data)
+        UserSchema().load(data)
     except ValidationError as err:
         return err.messages, 400
 
@@ -124,7 +122,6 @@ def create_user():
         return jsonify(success=True), 201
     else:
         return jsonify(error="Phone number already registered."), 409
-
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
